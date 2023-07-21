@@ -1,0 +1,69 @@
+version: "3"
+
+volumes:
+  app_vendor:
+  app_node_modules:
+
+services:
+  app:
+    container_name: ${APP_CONTAINER_NAME}
+    build:
+      context: ./docker/app/
+    ports:
+      - ${APP_PORT}:${APP_VIRTUAL_PORT}
+      - 5173:5173 # viteで使用するポートをフォワード
+    volumes:
+      - ./laravel:/var/www/laravel:rw
+      - app_vendor:/var/www/laravel/vendor
+      - app_node_modules:/var/www/laravel/node_modules
+    restart: unless-stopped
+    environment:
+      VIRTUAL_HOST: ${APP_VIRTUAL_HOST}
+      VIRTUAL_PORT: ${APP_VIRTUAL_PORT}
+      DB_HOST: ${DB_CONTAINER_NAME}
+      DB_NAME: ${DB_DATABASE}
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+
+  database:
+    image: mysql:8.0
+    container_name: ${DB_CONTAINER_NAME}
+    restart: unless-stopped
+    volumes:
+      - ./docker/db/data:/var/lib/mysql
+    expose:
+      - ${DB_PORT}
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+      MYSQL_USER: ${DB_USER}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+      MYSQL_DATABASE: ${DB_DATABASE}
+
+  phpmyadmin:
+    image: phpmyadmin:latest
+    container_name: ${PMA_CONTAINER_NAME}
+    restart: unless-stopped
+    ports:
+      - ${PMA_PORT}:${PMA_VIRTUAL_PORT}
+    environment:
+      PMA_ARBITARY: 1
+      PMA_HOST: ${DB_CONTAINER_NAME}
+      PMA_USER: ${DB_USER}
+      PMA_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - ./docker/pma/sessions:/sessions
+
+  smtp:
+    container_name: ${MAIL_CONTAINER_NAME}
+    image: mailhog/mailhog
+    platform: linux/amd64
+    restart: unless-stopped
+    ports:
+      - ${MAIL_HTTP_PORT}:${MAIL_HTTP_PORT}
+    expose:
+      - ${MAIL_SMTP_PORT}
+    environment:
+      MH_STORAGE: ${MH_STORAGE}
+      MH_MAILDIR_PATH: ${MH_MAILDIR_PATH}
+    volumes:
+      - ./docker/mail/:${MH_MAILDIR_PATH}:rw
