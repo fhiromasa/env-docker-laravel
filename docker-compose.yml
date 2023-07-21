@@ -6,11 +6,11 @@ version: "3"
 
 services:
   app:
-    container_name: app
+    container_name: ${APP_CONTAINER_NAME}
     build:
       context: ./docker/app/
     ports:
-      - ${WEB_PORT}:${WEB_VIRTUAL_PORT}
+      - ${APP_PORT}:${APP_VIRTUAL_PORT}
       - 5173:5173 # viteで使用するポートをフォワード
     volumes:
       - ./laravel:/var/www/laravel:rw
@@ -18,14 +18,12 @@ services:
       # - app_node_modules:/var/www/laravel/node_modules
     restart: unless-stopped
     environment:
-      VIRTUAL_HOST: ${WEB_VIRTUAL_HOST}
-      VIRTUAL_PORT: ${WEB_VIRTUAL_PORT}
+      VIRTUAL_HOST: ${APP_VIRTUAL_HOST}
+      VIRTUAL_PORT: ${APP_VIRTUAL_PORT}
       DB_HOST: ${DB_CONTAINER_NAME}
       DB_NAME: ${DB_DATABASE}
       DB_USER: ${DB_USER}
       DB_PASSWORD: ${DB_PASSWORD}
-      SMTP_HOST: ${MAIL_CONTAINER_NAME}
-      SMTP_PORT: ${MAIL_SMTP_PORT}
 
   database:
     image: mysql:8.0
