@@ -3,7 +3,7 @@ docker/db
 docker/mail
 docker/pma
 
-/vendor/
+vendor/
 node_modules/
 npm-debug.log
 yarn-error.log
