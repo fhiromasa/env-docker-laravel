@@ -1,8 +1,8 @@
 version: "3"
 
-# volumes:
-#   app_vendor:
-#   app_node_modules:
+volumes:
+  app_vendor:
+  app_node_modules:
 
 services:
   app:
@@ -14,8 +14,8 @@ services:
       - 5173:5173 # viteで使用するポートをフォワード
     volumes:
       - ./laravel:/var/www/laravel:rw
-      # - app_vendor:/var/www/laravel/vendor
-      # - app_node_modules:/var/www/laravel/node_modules
+      - app_vendor:/var/www/laravel/vendor
+      - app_node_modules:/var/www/laravel/node_modules
     restart: unless-stopped
     environment:
       VIRTUAL_HOST: ${APP_VIRTUAL_HOST}
